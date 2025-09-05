@@ -4,13 +4,17 @@ using UnityEngine;
 public class SnakeTail : MonoBehaviour
 {
     [SerializeField] private SnakeTail _nextTail;
+    [SerializeField] private int _historySize = 5;
 
-    private Queue<Vector3> _positionHistory = new Queue<Vector3>();
+    private Queue<Vector3> _positionHistory;
     private Vector3 _initialPosition;
+    private Quaternion _initialRotation;
 
     void Awake()
     {
         _initialPosition = transform.position;
+        _initialRotation = transform.rotation;
+        _positionHistory = new Queue<Vector3>(_historySize + 1);
     }
 
     void Start()
@@ -21,24 +25,29 @@ public class SnakeTail : MonoBehaviour
     public void ForceResetPosition()
     {
         transform.position = _initialPosition;
+        transform.rotation = _initialRotation;
         _positionHistory.Clear();
 
-        for (int i = 0; i < 5; i++)
-        {
+        for (int i = 0; i < _historySize; i++)
             _positionHistory.Enqueue(_initialPosition);
-        }
     }
 
     public void UpdatePosition(Vector3 newPosition)
     {
         _positionHistory.Enqueue(newPosition);
 
-        if (_positionHistory.Count > 0)
-        {
-            transform.position = _positionHistory.Dequeue();
-        }
+        transform.position = _positionHistory.Dequeue();
 
-        LookAtMovementDirection(newPosition);
+        if (transform.position != newPosition)
+        {
+            Vector3 direction = (newPosition - transform.position);
+
+            if (direction.sqrMagnitude > 0.001f)
+            {
+                direction.Normalize();
+                transform.rotation = Quaternion.LookRotation(direction) * _initialRotation;
+            }
+        }
 
         if (_nextTail != null)
         {
@@ -46,31 +55,16 @@ public class SnakeTail : MonoBehaviour
         }
     }
 
-    private void LookAtMovementDirection(Vector3 newPosition)
-    {
-        if (transform.position != newPosition)
-        {
-            Vector3 direction = (newPosition - transform.position).normalized;
-            if (direction != Vector3.zero)
-            {
-                transform.rotation = Quaternion.LookRotation(direction) * Quaternion.Euler(90, 0, 0);
-            }
-        }
-    }
-
-    public SnakeTail GetNextTail()
-    {
-        return _nextTail;
-    }
-
     public void ForceSetInitialPosition(Vector3 newPosition)
     {
         transform.position = newPosition;
+        transform.rotation = _initialRotation;
         _positionHistory.Clear();
 
-        for (int i = 0; i < 5; i++)
-        {
+        for (int i = 0; i < _historySize; i++)
             _positionHistory.Enqueue(newPosition);
-        }
     }
+
+    public SnakeTail GetNextTail() => _nextTail;
+    public void SetNextTail(SnakeTail nextTail) => _nextTail = nextTail;
 }
