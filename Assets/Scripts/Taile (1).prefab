@@ -121,3 +121,4 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _nextTail: {fileID: 0}
+  _historySize: 5

@@ -14,6 +14,7 @@ public class SnakeHead : MonoBehaviour
     private int _tailCount = 0;
     private Coroutine _moveCoroutine;
     private WaitForSeconds _waitForDelay;
+    private bool _isGameActive = true;
 
     private void Awake()
     {
@@ -33,11 +34,13 @@ public class SnakeHead : MonoBehaviour
     private void OnEnable()
     {
         Food.OnFoodEaten += HandleFoodEaten;
+        Wall.OnGameOver += HandleGameOver;
     }
 
     private void OnDisable()
     {
         Food.OnFoodEaten -= HandleFoodEaten;
+        Wall.OnGameOver -= HandleGameOver;
 
         if (_moveCoroutine != null)
         {
@@ -49,6 +52,19 @@ public class SnakeHead : MonoBehaviour
     private void HandleFoodEaten(Food food)
     {
         AddTail();
+    }
+
+    private void HandleGameOver()
+    {
+        _isGameActive = false;
+
+        if (_moveCoroutine != null)
+        {
+            StopCoroutine(_moveCoroutine);
+            _moveCoroutine = null;
+        }
+
+        Debug.Log("Snake stopped moving. Game over!");
     }
 
     private void ForceSetTailPositions()
@@ -63,7 +79,7 @@ public class SnakeHead : MonoBehaviour
 
     private IEnumerator MoveRoutine()
     {
-        while (true)
+        while (_isGameActive)
         {
             Vector3 previousPosition = transform.position;
             transform.position += transform.forward * _moveStepSize;
@@ -79,6 +95,9 @@ public class SnakeHead : MonoBehaviour
 
     public void MoveForward()
     {
+        if (_isGameActive == false)
+            return;
+
         if (_moveCoroutine != null)
             StopCoroutine(_moveCoroutine);
 
@@ -87,12 +106,15 @@ public class SnakeHead : MonoBehaviour
 
     public void Rotate(Quaternion quaternion)
     {
+        if (_isGameActive == false)
+            return;
+
         transform.rotation = quaternion;
     }
 
     private void AddTail()
     {
-        if (_tailPrefab == null)
+        if (_tailPrefab == null || _isGameActive == false)
             return;
 
         SnakeTail lastTail = GetLastTail();
