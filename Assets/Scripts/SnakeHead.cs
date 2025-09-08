@@ -14,14 +14,17 @@ public class SnakeHead : MonoBehaviour
     private Quaternion _initialRotation;
     private int _tailCount = 0;
     private Coroutine _moveCoroutine;
+    private Coroutine _speedBoostCoroutine;
     private WaitForSeconds _waitForDelay;
     private bool _isGameActive = true;
+    private float _currentDelay;
 
     private void Awake()
     {
         _initialPosition = transform.position;
         _initialRotation = transform.rotation;
-        _waitForDelay = new WaitForSeconds(_delay);
+        _currentDelay = _delay;
+        _waitForDelay = new WaitForSeconds(_currentDelay);
     }
 
     private void Start()
@@ -36,23 +39,66 @@ public class SnakeHead : MonoBehaviour
     {
         Food.OnFoodEaten += HandleFoodEaten;
         Wall.OnGameOver += HandleGameOver;
+        SpeedBoost.OnSpeedBoostCollected += HandleSpeedBoostCollected;
     }
 
     private void OnDisable()
     {
         Food.OnFoodEaten -= HandleFoodEaten;
         Wall.OnGameOver -= HandleGameOver;
+        SpeedBoost.OnSpeedBoostCollected -= HandleSpeedBoostCollected;
 
         if (_moveCoroutine != null)
         {
             StopCoroutine(_moveCoroutine);
             _moveCoroutine = null;
         }
+
+        if (_speedBoostCoroutine != null)
+        {
+            StopCoroutine(_speedBoostCoroutine);
+            _speedBoostCoroutine = null;
+        }
     }
 
     private void HandleFoodEaten(Food food)
     {
         AddTail();
+    }
+
+    private void HandleSpeedBoostCollected(SpeedBoost boost)
+    {
+        if (_speedBoostCoroutine != null)
+        {
+            StopCoroutine(_speedBoostCoroutine);
+        }
+        _speedBoostCoroutine = StartCoroutine(SpeedBoostRoutine(boost.GetBoostMultiplier(), boost.GetBoostDuration()));
+    }
+
+    private IEnumerator SpeedBoostRoutine(float multiplier, float duration)
+    {
+        float originalDelay = _delay;
+        _currentDelay = _delay / multiplier;
+        _waitForDelay = new WaitForSeconds(_currentDelay);
+
+        if (_moveCoroutine != null)
+        {
+            StopCoroutine(_moveCoroutine);
+            _moveCoroutine = StartCoroutine(MoveRoutine());
+        }
+
+        yield return new WaitForSeconds(duration);
+
+        _currentDelay = originalDelay;
+        _waitForDelay = new WaitForSeconds(_currentDelay);
+
+        if (_moveCoroutine != null)
+        {
+            StopCoroutine(_moveCoroutine);
+            _moveCoroutine = StartCoroutine(MoveRoutine());
+        }
+
+        _speedBoostCoroutine = null;
     }
 
     private void HandleGameOver()
@@ -63,6 +109,12 @@ public class SnakeHead : MonoBehaviour
         {
             StopCoroutine(_moveCoroutine);
             _moveCoroutine = null;
+        }
+
+        if (_speedBoostCoroutine != null)
+        {
+            StopCoroutine(_speedBoostCoroutine);
+            _speedBoostCoroutine = null;
         }
 
         Debug.Log("Snake stopped moving. Game over!");
@@ -93,7 +145,6 @@ public class SnakeHead : MonoBehaviour
             if (_tailTip != null)
             {
                 SnakeTail lastTail = GetLastTail();
-
                 if (lastTail != null)
                 {
                     _tailTip.UpdatePosition(lastTail.transform.position);
@@ -129,7 +180,6 @@ public class SnakeHead : MonoBehaviour
             return;
 
         SnakeTail lastTail = GetLastTail();
-
         if (lastTail == null)
             return;
 
