@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using UnityEngine;
 
 public class SnakeHead : MonoBehaviour
@@ -8,6 +8,7 @@ public class SnakeHead : MonoBehaviour
     [SerializeField] private float _tailDistance = 1.0f;
     [SerializeField] private SnakeTail _firstTail;
     [SerializeField] private SnakeTail _tailPrefab;
+    [SerializeField] private TailTip _tailTip;
 
     private Vector3 _initialPosition;
     private Quaternion _initialRotation;
@@ -89,6 +90,16 @@ public class SnakeHead : MonoBehaviour
                 _firstTail.UpdatePosition(previousPosition);
             }
 
+            if (_tailTip != null)
+            {
+                SnakeTail lastTail = GetLastTail();
+
+                if (lastTail != null)
+                {
+                    _tailTip.UpdatePosition(lastTail.transform.position);
+                }
+            }
+
             yield return _waitForDelay;
         }
     }
@@ -126,6 +137,11 @@ public class SnakeHead : MonoBehaviour
         newTail.name = "Tail_" + (_tailCount + 1);
         lastTail.SetNextTail(newTail);
         _tailCount++;
+
+        if (_tailTip != null)
+            _tailTip.OnTailAdded(newTail);
+        else
+            Debug.LogWarning("SnakeHead: TailTip is not assigned! The tip of the tail will not be updated.");
     }
 
     private SnakeTail GetLastTail()
@@ -136,9 +152,7 @@ public class SnakeHead : MonoBehaviour
         SnakeTail currentTail = _firstTail;
 
         while (currentTail.GetNextTail() != null)
-        {
             currentTail = currentTail.GetNextTail();
-        }
 
         return currentTail;
     }
