@@ -3,28 +3,22 @@ using UnityEngine;
 public class SnakeInput : MonoBehaviour
 {
     [SerializeField] private SnakeHead _snakeHead;
-    [SerializeField] private KeyCode _leftKey = KeyCode.A;
-    [SerializeField] private KeyCode _rightKey = KeyCode.D;
+    [SerializeField] private float _keyboardSteerSpeed = 90f;
 
     private void Update()
     {
-        if (Input.GetKeyDown(_leftKey) )
-        {
-            RotateLeft();
-        }
-        else if (Input.GetKeyDown(_rightKey))
-        {
-            RotateRight();
-        }
-    }
+        if (_snakeHead == null) return;
 
-    private void RotateLeft()
-    {
-        _snakeHead.Rotate(_snakeHead.transform.rotation * Quaternion.Euler(0, -90, 0));
-    }
+        float rotation = 0f;
 
-    private void RotateRight()
-    {
-        _snakeHead.Rotate(_snakeHead.transform.rotation * Quaternion.Euler(0, 90, 0));
+        if (Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.LeftArrow))
+            rotation = -1f;
+        else if (Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow))
+            rotation = 1f;
+
+        if (rotation != 0f)
+        {
+            _snakeHead.Rotate(_snakeHead.transform.rotation * Quaternion.Euler(0, rotation * _keyboardSteerSpeed * Time.deltaTime, 0));
+        }
     }
 }

@@ -2,15 +2,8 @@ using UnityEngine;
 
 public class Food : MonoBehaviour
 {
-    public static event System.Action<Food> OnFoodEaten;
-
-    private void OnTriggerEnter(Collider other)
+    public void OnEaten()
     {
-        if (other.GetComponent<SnakeHead>() != null)
-        {
-            OnFoodEaten?.Invoke(this);
-
-            gameObject.SetActive(false);
-        }
+        gameObject.SetActive(false);
     }
 }

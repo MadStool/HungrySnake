@@ -10,11 +10,13 @@ public class SnakeHead : MonoBehaviour
     [SerializeField] private SnakeTail _tailPrefab;
     [SerializeField] private TailTip _tailTip;
 
+    [SerializeField] private LayerMask foodLayer;
+    [SerializeField] private LayerMask obstacleLayer;
+
     private Vector3 _initialPosition;
     private Quaternion _initialRotation;
     private int _tailCount = 0;
     private Coroutine _moveCoroutine;
-    private Coroutine _speedBoostCoroutine;
     private WaitForSeconds _waitForDelay;
     private bool _isGameActive = true;
     private float _currentDelay;
@@ -37,68 +39,36 @@ public class SnakeHead : MonoBehaviour
 
     private void OnEnable()
     {
-        Food.OnFoodEaten += HandleFoodEaten;
         Wall.OnGameOver += HandleGameOver;
-        SpeedBoost.OnSpeedBoostCollected += HandleSpeedBoostCollected;
     }
 
     private void OnDisable()
     {
-        Food.OnFoodEaten -= HandleFoodEaten;
         Wall.OnGameOver -= HandleGameOver;
-        SpeedBoost.OnSpeedBoostCollected -= HandleSpeedBoostCollected;
 
         if (_moveCoroutine != null)
         {
             StopCoroutine(_moveCoroutine);
             _moveCoroutine = null;
         }
-
-        if (_speedBoostCoroutine != null)
-        {
-            StopCoroutine(_speedBoostCoroutine);
-            _speedBoostCoroutine = null;
-        }
     }
 
-    private void HandleFoodEaten(Food food)
+    private void OnTriggerEnter(Collider other)
     {
-        AddTail();
-    }
-
-    private void HandleSpeedBoostCollected(SpeedBoost boost)
-    {
-        if (_speedBoostCoroutine != null)
+        if (((1 << other.gameObject.layer) & foodLayer) != 0)
         {
-            StopCoroutine(_speedBoostCoroutine);
-        }
-        _speedBoostCoroutine = StartCoroutine(SpeedBoostRoutine(boost.GetBoostMultiplier(), boost.GetBoostDuration()));
-    }
-
-    private IEnumerator SpeedBoostRoutine(float multiplier, float duration)
-    {
-        float originalDelay = _delay;
-        _currentDelay = _delay / multiplier;
-        _waitForDelay = new WaitForSeconds(_currentDelay);
-
-        if (_moveCoroutine != null)
-        {
-            StopCoroutine(_moveCoroutine);
-            _moveCoroutine = StartCoroutine(MoveRoutine());
+            Food food = other.GetComponent<Food>();
+            if (food != null)
+            {
+                food.OnEaten();
+                AddTail();
+            }
         }
 
-        yield return new WaitForSeconds(duration);
-
-        _currentDelay = originalDelay;
-        _waitForDelay = new WaitForSeconds(_currentDelay);
-
-        if (_moveCoroutine != null)
+        if (((1 << other.gameObject.layer) & obstacleLayer) != 0)
         {
-            StopCoroutine(_moveCoroutine);
-            _moveCoroutine = StartCoroutine(MoveRoutine());
+            HandleGameOver();
         }
-
-        _speedBoostCoroutine = null;
     }
 
     private void HandleGameOver()
@@ -109,12 +79,6 @@ public class SnakeHead : MonoBehaviour
         {
             StopCoroutine(_moveCoroutine);
             _moveCoroutine = null;
-        }
-
-        if (_speedBoostCoroutine != null)
-        {
-            StopCoroutine(_speedBoostCoroutine);
-            _speedBoostCoroutine = null;
         }
 
         Debug.Log("Snake stopped moving. Game over!");
@@ -154,6 +118,8 @@ public class SnakeHead : MonoBehaviour
             yield return _waitForDelay;
         }
     }
+
+    public float GetOriginalDelay() => _delay;
 
     public void MoveForward()
     {
@@ -205,5 +171,19 @@ public class SnakeHead : MonoBehaviour
             currentTail = currentTail.GetNextTail();
 
         return currentTail;
+    }
+
+    public float GetCurrentDelay() => _currentDelay;
+
+    public void SetDelay(float delay)
+    {
+        _currentDelay = delay;
+        _waitForDelay = new WaitForSeconds(_currentDelay);
+
+        if (_moveCoroutine != null)
+        {
+            StopCoroutine(_moveCoroutine);
+            _moveCoroutine = StartCoroutine(MoveRoutine());
+        }
     }
 }

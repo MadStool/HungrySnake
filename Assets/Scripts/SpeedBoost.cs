@@ -1,22 +1,19 @@
 using UnityEngine;
-using System.Collections;
 
 public class SpeedBoost : MonoBehaviour
 {
-    public static event System.Action<SpeedBoost> OnSpeedBoostCollected;
-
-    [SerializeField] private float _boostMultiplier = 5f;
-    [SerializeField] private float _boostDuration = 1f;
+    [SerializeField] private LayerMask _playerLayer;
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.GetComponent<SnakeHead>() != null)
+        if (((1 << other.gameObject.layer) & _playerLayer) != 0)
         {
-            OnSpeedBoostCollected?.Invoke(this);
-            gameObject.SetActive(false);
+            BoostManager boostManager = other.GetComponent<BoostManager>();
+            if (boostManager != null)
+            {
+                boostManager.HandleSpeedBoostCollected();
+                gameObject.SetActive(false);
+            }
         }
     }
-
-    public float GetBoostMultiplier() => _boostMultiplier;
-    public float GetBoostDuration() => _boostDuration;
 }
