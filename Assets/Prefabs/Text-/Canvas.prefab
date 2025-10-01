@@ -12,7 +12,6 @@ GameObject:
   - component: {fileID: 4319869354952504584}
   - component: {fileID: 3110853921466870130}
   - component: {fileID: 8676467322181966207}
-  - component: {fileID: 3992030473501185911}
   - component: {fileID: 1280037363862311765}
   m_Layer: 5
   m_Name: Canvas
@@ -104,22 +103,6 @@ MonoBehaviour:
   m_BlockingMask:
     serializedVersion: 2
     m_Bits: 4294967295
---- !u!114 &3992030473501185911
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1280475956698413284}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1e0275926a046254b83743c9f3ddcbb1, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _scoreText: {fileID: 5811175430096681627}
-  _foodPoints: 1
-  _speedBoostPoints: 5
-  _magnetBoostPoints: 3
 --- !u!114 &1280037363862311765
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -132,8 +115,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3bd4447b6055b7b489aa528d5b19d442, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _screenScoreText: {fileID: 0}
   _scoreOverHead: {fileID: 0}
-  _scoreOnCamera: {fileID: 3992030473501185911}
 --- !u!1 &6272565713275235825
 GameObject:
   m_ObjectHideFlags: 0

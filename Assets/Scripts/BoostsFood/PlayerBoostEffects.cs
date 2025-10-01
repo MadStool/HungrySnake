@@ -21,8 +21,8 @@ public class PlayerBoostEffects : MonoBehaviour
     private int _activeMagnetBoosts = 0;
     private bool _isMagnetActive = false;
 
-    public static event System.Action<Vector3> OnSpeedBoostCollected;
-    public static event System.Action<Vector3> OnMagnetBoostCollected;
+    public static event System.Action<Vector3, int> OnSpeedBoostCollected;
+    public static event System.Action<Vector3, int> OnMagnetBoostCollected;
 
     private void Awake()
     {
@@ -39,10 +39,12 @@ public class PlayerBoostEffects : MonoBehaviour
     }
 
     // Speed Boost
-    public void HandleSpeedBoostCollected()
+    public void HandleSpeedBoostCollected(int points)
     {
-        OnSpeedBoostCollected?.Invoke(transform.position);
-        _activeSpeedBoosts++;
+        OnSpeedBoostCollected?.Invoke(transform.position, points);
+
+        // —брасываем счетчик при каждом подборе
+        _activeSpeedBoosts = 1;
 
         if (_speedBoostCoroutine != null)
             StopCoroutine(_speedBoostCoroutine);
@@ -67,10 +69,12 @@ public class PlayerBoostEffects : MonoBehaviour
     }
 
     // Magnet Boost
-    public void HandleMagnetBoostCollected()
+    public void HandleMagnetBoostCollected(int points)
     {
-        OnMagnetBoostCollected?.Invoke(transform.position);
-        _activeMagnetBoosts++;
+        OnMagnetBoostCollected?.Invoke(transform.position, points);
+
+        // —брасываем счетчик при каждом подборе
+        _activeMagnetBoosts = 1;
 
         if (_magnetCoroutine != null)
             StopCoroutine(_magnetCoroutine);

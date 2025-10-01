@@ -1,15 +1,11 @@
 using UnityEngine;
+using TMPro;
 
 public class PlayerScore : MonoBehaviour
 {
-    [Header("Score Values")]
-    [SerializeField] private int _foodPoints = 1;
-    [SerializeField] private int _speedBoostPoints = 5;
-    [SerializeField] private int _magnetBoostPoints = 3;
-
-    [Header("References")]
+    [Header("UI References")]
+    [SerializeField] private TextMeshProUGUI _screenScoreText;
     [SerializeField] private ScoreOverHead _scoreOverHead;
-    [SerializeField] private ScoreOnCamera _scoreOnCamera;
 
     private int _currentScore = 0;
 
@@ -18,6 +14,8 @@ public class PlayerScore : MonoBehaviour
         Food.OnFoodEaten += HandleFoodEaten;
         PlayerBoostEffects.OnSpeedBoostCollected += HandleSpeedBoostCollected;
         PlayerBoostEffects.OnMagnetBoostCollected += HandleMagnetBoostCollected;
+
+        UpdateAllScoreTexts();
     }
 
     private void OnDestroy()
@@ -27,18 +25,22 @@ public class PlayerScore : MonoBehaviour
         PlayerBoostEffects.OnMagnetBoostCollected -= HandleMagnetBoostCollected;
     }
 
-    private void HandleFoodEaten(Vector3 position) => AddPoints(_foodPoints);
-    private void HandleSpeedBoostCollected(Vector3 position) => AddPoints(_speedBoostPoints);
-    private void HandleMagnetBoostCollected(Vector3 position) => AddPoints(_magnetBoostPoints);
+    private void HandleFoodEaten(Vector3 position, int points, Color color) => AddPoints(points);
+    private void HandleSpeedBoostCollected(Vector3 position, int points) => AddPoints(points);
+    private void HandleMagnetBoostCollected(Vector3 position, int points) => AddPoints(points);
 
     public void AddPoints(int points)
     {
         _currentScore += points;
+        UpdateAllScoreTexts();
+    }
+
+    private void UpdateAllScoreTexts()
+    {
+        if (_screenScoreText != null)
+            _screenScoreText.text = $"Score: {_currentScore}";
 
         if (_scoreOverHead != null)
             _scoreOverHead.UpdateScoreText(_currentScore);
-
-        if (_scoreOnCamera != null)
-            _scoreOnCamera.AddPoints(points);
     }
 }

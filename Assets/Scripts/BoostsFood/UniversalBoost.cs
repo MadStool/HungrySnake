@@ -6,6 +6,9 @@ public class UniversalBoost : MonoBehaviour
 
     [SerializeField] private BoostType _type;
     [SerializeField] private LayerMask _playerLayer;
+    [SerializeField] private int _points = 3;
+
+    public int Points => _points;
 
     private void OnTriggerEnter(Collider other)
     {
@@ -18,10 +21,10 @@ public class UniversalBoost : MonoBehaviour
                 switch (_type)
                 {
                     case BoostType.Speed:
-                        boost.HandleSpeedBoostCollected();
+                        boost.HandleSpeedBoostCollected(_points);
                         break;
                     case BoostType.Magnet:
-                        boost.HandleMagnetBoostCollected();
+                        boost.HandleMagnetBoostCollected(_points);
                         break;
                 }
                 gameObject.SetActive(false);

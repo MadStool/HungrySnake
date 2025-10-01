@@ -18,13 +18,18 @@ public class SimpleFloatingText : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.GetComponent<Food>() != null)
-            ShowText("+1");
+        Food food = other.GetComponent<Food>();
+        if (food != null)
+        {
+            ShowText($"+{food.Points}", food.TextColor);
+        }
         else if (other.GetComponent<UniversalBoost>() != null)
-            ShowText("+Boost");
+        {
+            ShowText("+Boost", Color.yellow);
+        }
     }
 
-    private void ShowText(string message)
+    private void ShowText(string message, Color color)
     {
         if (_textPrefab == null)
             return;
@@ -32,10 +37,11 @@ public class SimpleFloatingText : MonoBehaviour
         Vector3 spawnPosition = transform.position + _offset;
         TextMeshPro text = Instantiate(_textPrefab, spawnPosition, Quaternion.identity);
         text.text = message;
+        text.color = color;
         text.transform.SetParent(transform);
 
         StartCoroutine(TextLookAtCamera(text));
-        StartCoroutine(FloatAndFade(text));
+        StartCoroutine(FloatAndFade(text, color));
     }
 
     private System.Collections.IEnumerator TextLookAtCamera(TextMeshPro text)
@@ -47,17 +53,15 @@ public class SimpleFloatingText : MonoBehaviour
                 text.transform.LookAt(_mainCamera.transform);
                 text.transform.Rotate(0, 180, 0);
             }
-
             yield return null;
         }
     }
 
-    private System.Collections.IEnumerator FloatAndFade(TextMeshPro text)
+    private System.Collections.IEnumerator FloatAndFade(TextMeshPro text, Color startColor)
     {
         float elapsed = 0f;
         Vector3 startPosition = text.transform.position;
         Vector3 endPosition = startPosition + Vector3.up * _floatHeight;
-        Color startColor = text.color;
         Color endColor = new Color(startColor.r, startColor.g, startColor.b, 0f);
 
         while (elapsed < _floatDuration && text != null)
@@ -66,7 +70,6 @@ public class SimpleFloatingText : MonoBehaviour
             float progress = elapsed / _floatDuration;
 
             text.transform.position = Vector3.Lerp(startPosition, endPosition, progress);
-
             text.color = Color.Lerp(startColor, endColor, progress);
 
             yield return null;

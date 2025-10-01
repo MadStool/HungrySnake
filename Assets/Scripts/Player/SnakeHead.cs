@@ -25,6 +25,8 @@ public class SnakeHead : MonoBehaviour
     private bool _isGameActive = true;
     private float _currentMoveSpeed;
 
+    public static event System.Action OnGameOver;
+
     private void Awake()
     {
         _initialPosition = transform.position;
@@ -93,7 +95,9 @@ public class SnakeHead : MonoBehaviour
             _moveCoroutine = null;
         }
 
-        Debug.Log("Snake stopped moving. Game over!");
+        OnGameOver?.Invoke();
+
+        Debug.Log("Game Over!");
     }
 
     private void ForceSetTailPositions()
