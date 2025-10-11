@@ -1,5 +1,6 @@
 using UnityEngine;
 
+[RequireComponent(typeof(AudioSource))]
 public class UniversalBoost : MonoBehaviour
 {
     public enum BoostType { Speed, Magnet }
@@ -18,6 +19,8 @@ public class UniversalBoost : MonoBehaviour
 
             if (boost != null)
             {
+                GetComponent<AudioSource>().Play();
+
                 switch (_type)
                 {
                     case BoostType.Speed:
@@ -27,7 +30,11 @@ public class UniversalBoost : MonoBehaviour
                         boost.HandleMagnetBoostCollected(_points);
                         break;
                 }
-                gameObject.SetActive(false);
+
+                GetComponent<Renderer>().enabled = false;
+                GetComponent<Collider>().enabled = false;
+
+                Destroy(gameObject, 2f);
             }
         }
     }

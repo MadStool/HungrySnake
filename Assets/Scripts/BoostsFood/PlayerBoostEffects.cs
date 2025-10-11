@@ -43,7 +43,6 @@ public class PlayerBoostEffects : MonoBehaviour
     {
         OnSpeedBoostCollected?.Invoke(transform.position, points);
 
-        // —брасываем счетчик при каждом подборе
         _activeSpeedBoosts = 1;
 
         if (_speedBoostCoroutine != null)
@@ -73,7 +72,6 @@ public class PlayerBoostEffects : MonoBehaviour
     {
         OnMagnetBoostCollected?.Invoke(transform.position, points);
 
-        // —брасываем счетчик при каждом подборе
         _activeMagnetBoosts = 1;
 
         if (_magnetCoroutine != null)

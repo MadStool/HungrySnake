@@ -7,7 +7,8 @@ public class SnakeInput : MonoBehaviour
 
     private void Update()
     {
-        if (_snakeHead == null) return;
+        if (_snakeHead == null)
+            return;
 
         float rotation = 0f;
 

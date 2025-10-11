@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 
+[RequireComponent(typeof(AudioSource))]
 public class Food : MonoBehaviour
 {
     public static event System.Action<Vector3, int, Color> OnFoodEaten;
@@ -14,6 +15,10 @@ public class Food : MonoBehaviour
     public void OnEaten()
     {
         OnFoodEaten?.Invoke(transform.position, _points, _textColor);
-        gameObject.SetActive(false);
+
+        GetComponent<AudioSource>().Play();
+        GetComponent<Renderer>().enabled = false;
+        GetComponent<Collider>().enabled = false;
+        Destroy(gameObject, 2f);
     }
 }

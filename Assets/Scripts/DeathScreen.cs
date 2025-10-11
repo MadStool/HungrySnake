@@ -36,7 +36,7 @@ public class GameEndScreen : MonoBehaviour
 
         if (_canvasGroup == null)
         {
-            Debug.LogError("CanvasGroup не найден на панели! ƒобавь его вручную в редакторе.");
+            Debug.LogError("CanvasGroup was not found on the panel! Add it manually in the editor.");
             return;
         }
 
@@ -68,9 +68,7 @@ public class GameEndScreen : MonoBehaviour
     private IEnumerator ShowDeathScreenWithDelay()
     {
         if (_deathSound != null)
-        {
             _audioSource.PlayOneShot(_deathSound);
-        }
 
         yield return new WaitForSecondsRealtime(_appearanceDelay);
 
@@ -109,6 +107,6 @@ public class GameEndScreen : MonoBehaviour
     private void RestartGame()
     {
         Time.timeScale = 1f;
-        UnityEngine.SceneManagement.SceneManager.LoadScene(0);
+        UnityEngine.SceneManagement.SceneManager.LoadScene(1);
     }
 }

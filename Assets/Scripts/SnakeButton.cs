@@ -3,15 +3,17 @@ using UnityEngine.EventSystems;
 
 public class SnakeButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 {
-    public GameObject snakeIcon;
+    [SerializeField] private RectTransform _snakeIcon;
 
     public void OnPointerEnter(PointerEventData eventData)
     {
-        snakeIcon.SetActive(true);
+        if (_snakeIcon != null)
+            _snakeIcon.gameObject.SetActive(true);
     }
 
     public void OnPointerExit(PointerEventData eventData)
     {
-        snakeIcon.SetActive(false);
+        if (_snakeIcon != null)
+            _snakeIcon.gameObject.SetActive(false);
     }
 }
