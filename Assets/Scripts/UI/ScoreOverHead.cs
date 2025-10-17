@@ -38,9 +38,9 @@ public class ScoreOverHead : MonoBehaviour
         }
     }
 
-    public void UpdateScoreText(int score)
+    public void UpdateScoreText(string text)
     {
         if (_scoreText != null)
-            _scoreText.text = score.ToString();
+            _scoreText.text = text;
     }
 }

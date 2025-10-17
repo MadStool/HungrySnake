@@ -1,6 +1,5 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using UnityEngine.UI;
 
 public class PauseGame : MonoBehaviour
 {
@@ -21,9 +20,7 @@ public class PauseGame : MonoBehaviour
 
         if (pausePanel != null)
         {
-            pausePanel.alpha = isPaused ? 1f : 0f;
-            pausePanel.blocksRaycasts = isPaused;
-            pausePanel.interactable = isPaused;
+            pausePanel.gameObject.SetActive(isPaused);
         }
 
         Time.timeScale = isPaused ? 0f : 1f;
@@ -32,14 +29,7 @@ public class PauseGame : MonoBehaviour
     public void ResumeGame()
     {
         isPaused = false;
-
-        if (pausePanel != null)
-        {
-            pausePanel.alpha = 0f;
-            pausePanel.blocksRaycasts = false;
-            pausePanel.interactable = false;
-        }
-
+        pausePanel.gameObject.SetActive(false);
         Time.timeScale = 1f;
     }
 

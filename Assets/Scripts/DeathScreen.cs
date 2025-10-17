@@ -22,6 +22,8 @@ public class GameEndScreen : MonoBehaviour
     [Header("Sound")]
     [SerializeField] private AudioClip _deathSound;
     [SerializeField] private float _soundVolume = 1f;
+    [SerializeField] private AudioSource _backgroundMusic;
+    [SerializeField] private float _musicFadeDuration = 1f;
 
     private AudioSource _audioSource;
     private CanvasGroup _canvasGroup;
@@ -67,6 +69,9 @@ public class GameEndScreen : MonoBehaviour
 
     private IEnumerator ShowDeathScreenWithDelay()
     {
+        if (_backgroundMusic != null)
+            StartCoroutine(FadeOutMusic());
+
         if (_deathSound != null)
             _audioSource.PlayOneShot(_deathSound);
 
@@ -74,6 +79,22 @@ public class GameEndScreen : MonoBehaviour
 
         ShowEndScreen();
         StartCoroutine(FadeInScreen());
+    }
+
+    private IEnumerator FadeOutMusic()
+    {
+        float startVolume = _backgroundMusic.volume;
+        float elapsedTime = 0f;
+
+        while (elapsedTime < _musicFadeDuration)
+        {
+            elapsedTime += Time.unscaledDeltaTime;
+            _backgroundMusic.volume = Mathf.Lerp(startVolume, 0f, elapsedTime / _musicFadeDuration);
+            yield return null;
+        }
+
+        _backgroundMusic.volume = 0f;
+        _backgroundMusic.Stop();
     }
 
     private void ShowEndScreen()
@@ -107,6 +128,13 @@ public class GameEndScreen : MonoBehaviour
     private void RestartGame()
     {
         Time.timeScale = 1f;
+
+        if (_backgroundMusic != null)
+        {
+            _backgroundMusic.volume = 1f;
+            _backgroundMusic.Play();
+        }
+
         UnityEngine.SceneManagement.SceneManager.LoadScene(1);
     }
 }
