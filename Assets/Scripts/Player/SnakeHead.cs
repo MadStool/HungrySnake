@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class SnakeHead : MonoBehaviour
@@ -25,7 +26,7 @@ public class SnakeHead : MonoBehaviour
     private bool _isGameActive = true;
     private float _currentMoveSpeed;
 
-    public static event System.Action OnGameOver;
+    public event System.Action OnGameOver;
 
     private void Awake()
     {
@@ -37,7 +38,6 @@ public class SnakeHead : MonoBehaviour
 
     private void OnEnable()
     {
-        Wall.OnGameOver += HandleGameOver;
     }
 
     private void Start()
@@ -48,16 +48,31 @@ public class SnakeHead : MonoBehaviour
         MoveForward();
     }
 
-
     private void OnDisable()
     {
-        Wall.OnGameOver -= HandleGameOver;
-
         if (_moveCoroutine != null)
         {
             StopCoroutine(_moveCoroutine);
             _moveCoroutine = null;
         }
+    }
+
+    public List<SnakeTail> GetAllTailSegments()
+    {
+        List<SnakeTail> segments = new List<SnakeTail>();
+
+        if (_firstTail == null)
+            return segments;
+
+        SnakeTail currentTail = _firstTail;
+
+        while (currentTail != null)
+        {
+            segments.Add(currentTail);
+            currentTail = currentTail.GetNextTail();
+        }
+
+        return segments;
     }
 
     private void UpdateStepDelay()
@@ -71,21 +86,15 @@ public class SnakeHead : MonoBehaviour
         if (((1 << other.gameObject.layer) & foodLayer) != 0)
         {
             Food food = other.GetComponent<Food>();
-
             if (food != null)
             {
                 food.OnEaten();
                 AddTail();
             }
         }
-
-        if (((1 << other.gameObject.layer) & obstacleLayer) != 0)
-        {
-            HandleGameOver();
-        }
     }
 
-    private void HandleGameOver()
+    public void HandleGameOver()
     {
         _isGameActive = false;
 
@@ -96,7 +105,6 @@ public class SnakeHead : MonoBehaviour
         }
 
         OnGameOver?.Invoke();
-
         Debug.Log("Game Over!");
     }
 
@@ -125,7 +133,6 @@ public class SnakeHead : MonoBehaviour
             if (_tailTip != null)
             {
                 SnakeTail lastTail = GetLastTail();
-
                 if (lastTail != null)
                 {
                     _tailTip.UpdatePosition(lastTail.transform.position);
@@ -207,4 +214,7 @@ public class SnakeHead : MonoBehaviour
     public float GetCurrentDelay() => _moveStepSize / _currentMoveSpeed;
     public float GetOriginalDelay() => _moveStepSize / _moveSpeed;
     public void SetDelay(float delay) => SetSpeed(_moveStepSize / delay);
+
+    public float GetTailDistance() => _tailDistance;
+    public TailTip GetTailTip() => _tailTip;
 }
